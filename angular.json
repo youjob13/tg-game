@@ -33,7 +33,7 @@
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
-            "scripts": [],
+            "scripts": ["https://telegram.org/js/telegram-web-app.js?56"],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "ssr": {
