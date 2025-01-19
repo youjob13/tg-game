@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { IMember } from '../game/game.models';
 
 const members = [
@@ -13,31 +13,7 @@ const members = [
   providedIn: 'root',
 })
 export class LobbyHttpService {
-  loading = false;
-  counter = 0;
-  mockMembers = new BehaviorSubject<{ members: IMember[] }>({ members: [] });
-
-  addMockUser() {
-    setTimeout(() => {
-      this.mockMembers.next({
-        members: [
-          ...this.mockMembers.value.members,
-          { ...members[this.counter] },
-        ],
-      });
-      this.counter += 1;
-
-      if (this.counter < 4) {
-        this.addMockUser();
-      } else {
-        this.mockMembers.complete();
-      }
-    }, 1000);
-  }
-
   loadData(): Observable<{ members: IMember[] }> {
-    this.addMockUser();
-
-    return this.mockMembers.asObservable();
+    return of({ members });
   }
 }

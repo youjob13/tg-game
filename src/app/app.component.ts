@@ -16,17 +16,17 @@ import { TelegramWebApp } from '@m1cron-labs/ng-telegram-mini-app';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private readonly telegram = inject(TelegramWebApp);
+  // private readonly telegram = inject(TelegramWebApp);
 
   constructor() {
-    this.telegram.ready();
+    // this.telegram.ready();
   }
 
   ngOnInit() {
-    console.debug('Telegram Web App is ready', this.telegram.initDataUnsafe);
+    // console.debug('Telegram Web App is ready', this.telegram.initDataUnsafe);
   }
 
   ngOnDestroy(): void {
-    this.telegram.close();
+    // this.telegram.close();
   }
 }

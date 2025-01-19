@@ -24,6 +24,10 @@ export class LobbyFacadeService {
     this.lobbyStateService.loadData();
   }
 
+  clearState() {
+    this.lobbyStateService.clearState();
+  }
+
   changeReadinessStatus() {
     this.lobbyStateService.changeReadinessStatus();
   }

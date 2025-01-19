@@ -44,12 +44,13 @@ export class LobbyStateService {
     return true;
   });
 
-  a = effect(() => console.log(this.state.members()));
+  readonly clearState = rxMethod<void>(
+    pipe(tap(() => patchState(this.state, { members: [] })))
+  );
 
   readonly changeReadinessStatus = rxMethod<void>(
     pipe(
       tap(() => {
-        // ToDo: must be call to server
         patchState(this.state, (state) => {
           return {
             members: state.members.map((member) => {

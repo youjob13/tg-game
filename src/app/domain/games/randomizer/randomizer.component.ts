@@ -9,13 +9,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { IGameSettings, RandomizerService } from './randomizer.service';
-import { fromEvent, take, tap } from 'rxjs';
+import { fromEvent, map, skip, take, tap } from 'rxjs';
 import { WINDOW } from '../../../core/injection-tokens';
 import {
   calculateTickerAnimationData,
+  generateRandomColors,
   selectPrize,
   spinertia,
 } from './helpers';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalComponent } from '../../../common/components/modal/modal.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-randomizer',
@@ -24,9 +28,11 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RandomizerComponent {
+  private readonly router = inject(Router);
   private readonly window = inject(WINDOW);
   private readonly randomizerService = inject(RandomizerService);
   private readonly renderer = inject(Renderer2);
+  private readonly dialog = inject(MatDialog);
 
   private tickerAnimationId!: number;
 
@@ -51,10 +57,22 @@ export class RandomizerComponent {
     this.window.getComputedStyle(this.spinnerElem())
   );
 
-  private readonly startEffect = effect(() => {
-    const gameSettings = this.randomizerService.gameSettings();
-    this.startGame(gameSettings);
-  });
+  constructor() {
+    effect(() => {
+      const gameSettings = this.randomizerService.gameSettings();
+      this.startGame(gameSettings);
+    });
+
+    this.dialog.afterAllClosed
+      .pipe(
+        skip(1),
+        take(1),
+        tap(() => {
+          this.router.navigate(['/']);
+        })
+      )
+      .subscribe();
+  }
 
   private startGame(gameSettings: IGameSettings): void {
     const prizeNodes = this.drawSections(gameSettings);
@@ -66,6 +84,8 @@ export class RandomizerComponent {
   }
 
   private stylishSpinner(gameSettings: IGameSettings) {
+    const colors = generateRandomColors(gameSettings.prizes.length + 1);
+
     this.renderer.setStyle(
       this.spinnerElem(),
       'background',
@@ -73,8 +93,8 @@ export class RandomizerComponent {
     from -90deg,
     ${gameSettings.prizes
       .map(
-        ({ color }, i) =>
-          `${color} 0 ${
+        (prize, i) =>
+          `${colors[i]} 0 ${
             (100 / gameSettings.prizes.length) *
             (gameSettings.prizes.length - i)
           }%`
@@ -140,14 +160,21 @@ export class RandomizerComponent {
     fromEvent(this.spinnerElem(), 'transitionend')
       .pipe(
         take(1),
-        tap({
-          next: () => {
-            const selected = selectPrize({
-              gameSettings,
-              rotation,
-            });
+        map(() => {
+          const selectedIndex = selectPrize({
+            gameSettings,
+            rotation,
+          });
 
-            this.renderer.addClass(prizeNodes[selected], this.SelectedClass);
+          return prizeNodes[selectedIndex];
+        }),
+        tap({
+          next: (winnerNode) => {
+            this.renderer.addClass(winnerNode, this.SelectedClass);
+            this.openDialog({
+              animationDuration: 500,
+              data: { name: winnerNode.textContent! },
+            });
           },
           finalize: () => cancelAnimationFrame(this.tickerAnimationId),
         })
@@ -181,5 +208,20 @@ export class RandomizerComponent {
     this.tickerAnimationId = requestAnimationFrame(
       this.runTickerAnimation.bind(this, gameSettings, currentSlice)
     );
+  }
+
+  private openDialog({
+    data,
+    animationDuration,
+  }: {
+    data: { name: string };
+    animationDuration: number;
+  }): void {
+    this.dialog.open(ModalComponent, {
+      width: '250px',
+      enterAnimationDuration: animationDuration,
+      exitAnimationDuration: animationDuration,
+      data,
+    });
   }
 }

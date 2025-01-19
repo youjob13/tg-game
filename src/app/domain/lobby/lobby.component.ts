@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  OnDestroy,
   OnInit,
   signal,
   untracked,
@@ -38,12 +39,17 @@ export class LobbyComponent implements OnInit {
   readonly gameService = inject(GameService);
 
   readonly members = computed(() => this.lobbyFacadeService.state.members());
-  readonly fulfillmentProgress = computed(
-    () =>
-      (this.lobbyFacadeService.state.members().length /
+  readonly fulfillmentProgress = computed(() => {
+    const readinessMembers = this.lobbyFacadeService.state
+      .members()
+      .filter((member) => member.isReady);
+
+    return (
+      (readinessMembers.length /
         untracked(this.lobbyFacadeService.state.gameRequirementMembersCount)) *
       100
-  );
+    );
+  });
   readonly isLobbyFulled = computed(
     () =>
       this.lobbyFacadeService.state.members().length ===
@@ -59,6 +65,7 @@ export class LobbyComponent implements OnInit {
 
   navigateToGame() {
     this.gameService.addPlayers(this.members());
+    this.lobbyFacadeService.clearState();
     this.router.navigate(['randomizer'], { relativeTo: this.route });
   }
 
