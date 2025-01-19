@@ -1,0 +1,15 @@
+.title {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  background-color: inherit;
+  font-weight: 600;
+}
+
+.menu-list {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  row-gap: 20px;
+}

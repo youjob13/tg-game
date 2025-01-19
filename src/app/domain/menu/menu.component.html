@@ -1,0 +1,25 @@
+<mat-toolbar class="title">
+  <span>Lucky Spin Showdown</span>
+</mat-toolbar>
+
+<ul class="menu-list">
+  <li>
+    <button
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      mat-flat-button
+      extended
+      (click)="router.navigate(['/game'])"
+    >
+      <mat-icon>games</mat-icon>
+      Join Lobby
+    </button>
+  </li>
+
+  <li>
+    <button mat-flat-button extended>
+      <mat-icon>settings</mat-icon>
+      Settings
+    </button>
+  </li>
+</ul>

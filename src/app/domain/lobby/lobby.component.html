@@ -1,0 +1,57 @@
+<mat-grid-list [cols]="lobbySettings().cols">
+  @for(member of members(); track member.id) {
+  <mat-grid-tile class="member-card">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title-group>
+          <mat-icon class="member-avatar">account_circle</mat-icon>
+          <mat-card-title>
+            <p class="member-name">{{ member.name }}</p>
+          </mat-card-title>
+        </mat-card-title-group>
+      </mat-card-header>
+      <mat-card-content>
+        @if(lobbyFacadeService.currentUser()?.id === member.id) {
+        <button
+          ariaCurrentWhenActive="page"
+          mat-flat-button
+          (click)="changeReadinessStatus()"
+        >
+          {{ member.isReady ? "Cancel" : "Start" }}
+        </button>
+
+        } @else {
+        <!--  -->
+        <p class="is-ready">{{ member.isReady ? "Ready" : "Not ready" }}</p>
+        <!--  -->
+        }
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+
+  }
+</mat-grid-list>
+
+<div class="game-status">
+  @if(!isLobbyFulled()) {
+  <p>The game requires more participants</p>
+  } @else if (!lobbyFacadeService.isReadyForGame()) {
+  <p>Not all lobby members are ready for game</p>
+  } @else {
+  <p>The game is ready</p>
+  }
+
+  <mat-progress-bar
+    mode="determinate"
+    [value]="fulfillmentProgress()"
+  ></mat-progress-bar>
+</div>
+
+<button
+  [disabled]="!lobbyFacadeService.isReadyForGame()"
+  ariaCurrentWhenActive="page"
+  mat-flat-button
+  (click)="navigateToGame()"
+>
+  Start game
+</button>

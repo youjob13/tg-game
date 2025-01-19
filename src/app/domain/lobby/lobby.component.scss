@@ -1,0 +1,56 @@
+:host {
+  display: grid;
+  grid-template-rows: 3fr 1fr 1fr;
+}
+
+mat-grid-list {
+  width: 50vw;
+}
+
+@media (max-width: 700px) {
+  mat-grid-list {
+    width: 90vw;
+  }
+}
+
+mat-grid-tile {
+  background: lightblue;
+}
+
+mat-card {
+  display: grid;
+  row-gap: 10px;
+}
+
+mat-card-title-group {
+  align-items: center;
+}
+
+mat-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70px;
+  text-align: center;
+}
+
+.member {
+  &-avatar {
+    order: -1;
+    height: 50px;
+    width: 50px;
+    font-size: 50px;
+  }
+
+  &-name {
+    font-size: 24px;
+  }
+}
+
+.game-status {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  row-gap: 25px;
+  align-items: center;
+}
