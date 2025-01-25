@@ -1,17 +1,8 @@
-import {
-  computed,
-  effect,
-  inject,
-  Injectable,
-  signal,
-  untracked,
-} from '@angular/core';
-import { IMember } from '../game/game.models';
+import { computed, inject, Injectable, untracked } from '@angular/core';
 import { patchState, signalState } from '@ngrx/signals';
 import { initialLobbyState } from './state';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, pipe, tap } from 'rxjs';
-import { LobbyHttpService } from './lobby-http.service';
+import { exhaustMap, of, pipe, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { UserService } from '../services/user.service';
 
@@ -24,7 +15,6 @@ export enum ReadinessStatus {
   providedIn: 'root',
 })
 export class LobbyStateService {
-  private readonly lobbyHttpService = inject(LobbyHttpService);
   private readonly userService = inject(UserService);
   private readonly user = this.userService.user;
 
@@ -71,11 +61,32 @@ export class LobbyStateService {
     )
   );
 
+  readonly updateRequiredMembersCount = rxMethod<number>(
+    pipe(
+      tap((count) =>
+        patchState(this.state, { gameRequirementMembersCount: count })
+      )
+    )
+  );
+
+  readonly addMember = rxMethod<string>(
+    pipe(
+      tap((newMember: string) =>
+        patchState(this.state, (state) => ({
+          members: [
+            ...state.members,
+            { id: self.crypto.randomUUID(), name: newMember, isReady: true },
+          ],
+        }))
+      )
+    )
+  );
+
   readonly loadData = rxMethod<void>(
     pipe(
       tap(() => patchState(this.state, { isLoading: true })),
       exhaustMap(() => {
-        return this.lobbyHttpService.loadData().pipe(
+        return of({ members: [] }).pipe(
           tapResponse({
             next: ({ members }) => patchState(this.state, { members }),
             error: console.error,

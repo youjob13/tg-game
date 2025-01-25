@@ -1,11 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { IMember } from '../game/game.models';
-import { patchState, signalState } from '@ngrx/signals';
-import { initialLobbyState } from './state';
-import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, pipe, tap } from 'rxjs';
-import { LobbyHttpService } from './lobby-http.service';
-import { tapResponse } from '@ngrx/operators';
+import { inject, Injectable } from '@angular/core';
 import { LobbyStateService } from './lobby-state.service';
 import { UserService } from '../services/user.service';
 
@@ -24,11 +17,19 @@ export class LobbyFacadeService {
     this.lobbyStateService.loadData();
   }
 
+  addMember(newMember: string) {
+    this.lobbyStateService.addMember(newMember);
+  }
+
   clearState() {
     this.lobbyStateService.clearState();
   }
 
   changeReadinessStatus() {
     this.lobbyStateService.changeReadinessStatus();
+  }
+
+  updateRequiredMembersCount(count: number) {
+    this.lobbyStateService.updateRequiredMembersCount(count);
   }
 }

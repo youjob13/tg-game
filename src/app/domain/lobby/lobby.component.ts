@@ -3,10 +3,8 @@ import {
   Component,
   computed,
   inject,
-  OnDestroy,
   OnInit,
   signal,
-  untracked,
 } from '@angular/core';
 import { LobbyFacadeService } from './lobby-facade.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -17,6 +15,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../game/game.service';
+import { MatDialog } from '@angular/material/dialog';
+import { FormModalComponent } from '../../common/components/form-modal/form-modal.component';
+import {
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-lobby',
@@ -27,16 +35,33 @@ import { GameService } from '../game/game.service';
     MatCardModule,
     MatGridListModule,
     MatProgressBarModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './lobby.component.html',
   styleUrl: './lobby.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LobbyComponent implements OnInit {
-  readonly route = inject(ActivatedRoute);
-  readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly lobbyFacadeService = inject(LobbyFacadeService);
   readonly gameService = inject(GameService);
+
+  readonly requiredMembersCountControl = new FormControl<number>(0, {
+    validators: [Validators.min(2)],
+  });
+
+  constructor() {
+    this.requiredMembersCountControl.valueChanges.subscribe((count) => {
+      if (count && count > 1) {
+        this.lobbyFacadeService.updateRequiredMembersCount(count);
+      }
+    });
+  }
 
   readonly members = computed(() => this.lobbyFacadeService.state.members());
   readonly fulfillmentProgress = computed(() => {
@@ -46,14 +71,14 @@ export class LobbyComponent implements OnInit {
 
     return (
       (readinessMembers.length /
-        untracked(this.lobbyFacadeService.state.gameRequirementMembersCount)) *
+        this.lobbyFacadeService.state.gameRequirementMembersCount()) *
       100
     );
   });
   readonly isLobbyFulled = computed(
     () =>
       this.lobbyFacadeService.state.members().length ===
-      untracked(this.lobbyFacadeService.state.gameRequirementMembersCount)
+      this.lobbyFacadeService.state.gameRequirementMembersCount()
   );
   readonly lobbySettings = signal({
     cols: 2,
@@ -72,4 +97,28 @@ export class LobbyComponent implements OnInit {
   changeReadinessStatus() {
     this.lobbyFacadeService.changeReadinessStatus();
   }
+
+  addParticipant() {
+    const dialogRef = this.dialog.open(FormModalComponent, {
+      width: '250px',
+      enterAnimationDuration: 300,
+      exitAnimationDuration: 300,
+    });
+
+    dialogRef.afterClosed().subscribe((result: string | null) => {
+      if (result != null) {
+        this.lobbyFacadeService.addMember(result);
+      }
+    });
+  }
+
+  // onChangeParticipantsNumber(inputElem: EventTarget | null) {
+  // const isNumberRegExp = /\d+/;
+  // const value = (inputElem as HTMLInputElement).value || '';
+  // const isNumber = isNumberRegExp.test(value);
+
+  //   if (isNumber) {
+  //     this.lobbyFacadeService.updateRequiredMembersCount(Number(value));
+  //   }
+  // }
 }

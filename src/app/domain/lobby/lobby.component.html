@@ -1,5 +1,5 @@
-<mat-grid-list [cols]="lobbySettings().cols">
-  @for(member of members(); track member.id) {
+<mat-grid-list class="scrollable-content" [cols]="lobbySettings().cols">
+  @for(member of members(); track member.id; let index = $index) {
   <mat-grid-tile class="member-card">
     <mat-card>
       <mat-card-header>
@@ -47,11 +47,39 @@
   ></mat-progress-bar>
 </div>
 
-<button
-  [disabled]="!lobbyFacadeService.isReadyForGame()"
-  ariaCurrentWhenActive="page"
-  mat-flat-button
-  (click)="navigateToGame()"
->
-  Start game
-</button>
+<div class="controls">
+  <form class="members-count-control">
+    <mat-form-field>
+      <mat-label>Number of participants</mat-label>
+      <input
+        [disabled]="lobbyFacadeService.isReadyForGame()"
+        [formControl]="requiredMembersCountControl"
+        matInput
+        type="number"
+        placeholder="Type desired number of participants"
+        value="4"
+        min="2"
+      />
+    </mat-form-field>
+  </form>
+
+  <button
+    class="add-members-control"
+    [disabled]="lobbyFacadeService.isReadyForGame()"
+    ariaCurrentWhenActive="page"
+    mat-flat-button
+    (click)="addParticipant()"
+  >
+    Add participant
+  </button>
+
+  <button
+    class="start-game-control"
+    [disabled]="!lobbyFacadeService.isReadyForGame()"
+    ariaCurrentWhenActive="page"
+    mat-flat-button
+    (click)="navigateToGame()"
+  >
+    Start game
+  </button>
+</div>

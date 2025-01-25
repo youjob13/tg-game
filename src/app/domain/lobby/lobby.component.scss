@@ -54,3 +54,31 @@ mat-card-content {
   row-gap: 25px;
   align-items: center;
 }
+
+.controls {
+  display: grid;
+
+  grid-template-areas:
+    "input input"
+    "btn1 btn2";
+
+  .members-count-control {
+    grid-area: input;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .add-member-control {
+    grid-area: btn1;
+  }
+
+  .start-game-control {
+    grid-area: btn2;
+  }
+}
+
+.scrollable-content {
+  height: 100%;
+  overflow: scroll;
+  padding-bottom: 0 !important;
+}
