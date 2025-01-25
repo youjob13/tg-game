@@ -111,14 +111,4 @@ export class LobbyComponent implements OnInit {
       }
     });
   }
-
-  // onChangeParticipantsNumber(inputElem: EventTarget | null) {
-  // const isNumberRegExp = /\d+/;
-  // const value = (inputElem as HTMLInputElement).value || '';
-  // const isNumber = isNumberRegExp.test(value);
-
-  //   if (isNumber) {
-  //     this.lobbyFacadeService.updateRequiredMembersCount(Number(value));
-  //   }
-  // }
 }
